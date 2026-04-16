@@ -8,4 +8,5 @@ public class AppDbContext : DbContext
         : base(options) { }
 
         public DbSet<Users> Users { get; set; } = null!;
+        public DbSet<GameRecord> GameRecords { get; set; } = null!;
 }

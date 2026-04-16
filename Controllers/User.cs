@@ -1,4 +1,5 @@
 ﻿using GravitySwingData.Data;
+using GravitySwingData.DTOs;
 using GravitySwingData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -38,22 +39,21 @@ public class UserController : ControllerBase
 
     // POST: api/user/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] Users request)
+    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
     {
-        if (string.IsNullOrWhiteSpace(request.Username))
+        if (registerDTO == null)
+            return BadRequest("Invalid request");
+
+        if (string.IsNullOrWhiteSpace(registerDTO.Username))
             return BadRequest("Username is required");
 
         // Check if GUID already exists (device/user uniqueness)
-        var existing = await _context.Users
-            .FirstOrDefaultAsync(u => u.Guid == request.Guid);
 
-        if (existing != null)
-            return Ok(existing); // return existing instead of creating duplicate
 
         var user = new Users
         {
-            Guid = request.Guid,
-            Username = request.Username
+            Guid = Guid.NewGuid().ToString(),
+            Username = registerDTO.Username
         };
 
         _context.Users.Add(user);
@@ -62,23 +62,5 @@ public class UserController : ControllerBase
         return Ok(user);
     }
 
-    // PUT: api/user/{guid}
-    [HttpPut("{guid}")]
-    public async Task<IActionResult> UpdateUsername(string guid, [FromBody] string username)
-    {
-        var user = await _context.Users
-            .FirstOrDefaultAsync(u => u.Guid == guid);
 
-        if (user == null)
-            return NotFound();
-
-        if (string.IsNullOrWhiteSpace(username))
-            return BadRequest("Invalid username");
-
-        user.Username = username;
-
-        await _context.SaveChangesAsync();
-
-        return Ok(user);
-    }
 }
