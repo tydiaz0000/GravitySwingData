@@ -1,0 +1,13 @@
+services:
+  gravityswingdata:
+    build: .
+    container_name: gravityswingdata
+    environment:
+      - ConnectionStrings__Default=Host=postgres;Database=appdb;Username=admin;Password=admin
+    networks:
+      - internal
+
+
+networks:
+  internal:
+    external: true
