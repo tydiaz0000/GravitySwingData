@@ -25,9 +25,13 @@ public class UserController : ControllerBase
             .Where(u => u.Guid == guid)
             .Select(u => new
             {
-                u.Id,
                 u.Guid,
-                u.Username
+                u.Username,
+                u.BestScore,
+                u.BestCombo,
+                u.BestDistance,
+                u.GamesPlayed,
+                u.LastPlayed,
             })
             .FirstOrDefaultAsync();
 
@@ -39,7 +43,7 @@ public class UserController : ControllerBase
 
     // POST: api/user/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
+    public async Task<IActionResult> Register([FromBody] UsernameDTO registerDTO)
     {
         if (registerDTO == null)
             return BadRequest("Invalid request");
@@ -59,8 +63,51 @@ public class UserController : ControllerBase
         _context.Users.Add(user);
         await _context.SaveChangesAsync();
 
-        return Ok(user);
+        return Ok(user.Guid);
     }
 
+    [HttpPost("app-opened")]
+    public async Task<IActionResult> AppOpened([FromBody] AppOpenedDTO request)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Guid == request.Guid);
 
+        if (user == null)
+            return NotFound("User not found");
+
+        var session = new AppSession
+        {
+            UserId = user.Id,
+            DeviceInfo = request.DeviceInfo,
+            AppVersion = request.AppVersion,
+            OpenedAt = DateTime.UtcNow
+        };
+
+        _context.AppSessions.Add(session);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "App session recorded" });
+    }
+
+    [HttpPost("game-started")]
+    public async Task<IActionResult> GameStarted([FromBody] UserGuidDTO request)
+    {
+        var user = await _context.Users
+            .FirstOrDefaultAsync(u => u.Guid == request.Guid);
+
+        if (user == null)
+            return NotFound("User not found");
+
+        var session = new GameSession
+        {
+            UserId = user.Id,
+            StartedAt = DateTime.UtcNow,
+            Completed = false
+        };
+
+        _context.GameSessions.Add(session);
+        await _context.SaveChangesAsync();
+
+        return Ok(new { message = "Game session started" });
+    }
 }

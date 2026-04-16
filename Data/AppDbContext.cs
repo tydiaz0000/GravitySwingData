@@ -9,4 +9,7 @@ public class AppDbContext : DbContext
 
         public DbSet<Users> Users { get; set; } = null!;
         public DbSet<GameRecord> GameRecords { get; set; } = null!;
+        public DbSet<AppSession> AppSessions { get; set; } = null!;
+        public DbSet<GameSession> GameSessions { get; set; } = null!;
+        public DbSet<UserFeedback> UserFeedbacks { get; set; } = null!;
 }

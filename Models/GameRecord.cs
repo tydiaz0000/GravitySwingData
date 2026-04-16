@@ -11,5 +11,8 @@ public class GameRecord
     public int LongestCombo { get; set; }
     public int DistanceReached { get; set; }
 
+
     public DateTime PlayedAt { get; set; } = DateTime.UtcNow;
+
+    public List<GameSession> GameSessions { get; set; } = new();
 }

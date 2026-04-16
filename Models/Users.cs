@@ -14,4 +14,7 @@ public class Users
 
 
     public List<GameRecord> GameRecords { get; set; } = new();
+    public List<AppSession> AppSessions { get; set; } = new();
+    public List<GameSession> GameSessions { get; set; } = new();
+    public List<UserFeedback> Feedbacks { get; set; } = new();
 }
