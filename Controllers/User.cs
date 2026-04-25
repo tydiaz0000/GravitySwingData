@@ -1,5 +1,7 @@
-﻿using GravitySwingData.Data;
+﻿using System.Reflection.Emit;
+using GravitySwingData.Data;
 using GravitySwingData.DTOs;
+using GravitySwingData.Extension;
 using GravitySwingData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -43,16 +45,25 @@ public class UserController : ControllerBase
 
     // POST: api/user/register
     [HttpPost("register")]
-    public async Task<IActionResult> Register([FromBody] UsernameDTO registerDTO)
+    public async Task<IActionResult> Register([FromBody] RegisterDTO registerDTO)
     {
         if (registerDTO == null)
             return BadRequest("Invalid request");
 
         if (string.IsNullOrWhiteSpace(registerDTO.Username))
             return BadRequest("Username is required");
+        if (string.IsNullOrWhiteSpace(registerDTO.Guid))
+            return BadRequest("GUID is required");
+        if (string.IsNullOrWhiteSpace(registerDTO.Signature))
+            return BadRequest("Signature is required");
+
+        var expectedSignature = SignatureValidator.ComputeSignature(registerDTO.Guid, registerDTO.Username);
+        if (!string.Equals(expectedSignature, registerDTO.Signature, StringComparison.OrdinalIgnoreCase))
+            return BadRequest("Invalid signature");
 
         // Check if GUID already exists (device/user uniqueness)
-
+        if (await _context.Users.AnyAsync(u => u.Guid == registerDTO.Guid))
+            return Ok(registerDTO.Guid); // Idempotent response for existing user
 
         var user = new Users
         {

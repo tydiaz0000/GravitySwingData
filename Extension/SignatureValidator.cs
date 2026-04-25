@@ -20,4 +20,18 @@ public static class SignatureValidator
 
         return sb.ToString();
     }
+
+    public static string ComputeSignature(string guid, string username)
+    {
+        var payload = $"{guid}|{username}|{SECRET}";
+
+        using var sha = SHA256.Create();
+        var hash = sha.ComputeHash(Encoding.UTF8.GetBytes(payload));
+
+        var sb = new StringBuilder();
+        foreach (var b in hash)
+            sb.Append(b.ToString("x2"));
+
+        return sb.ToString();
+    }
 }
