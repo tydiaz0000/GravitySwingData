@@ -67,7 +67,7 @@ public class UserController : ControllerBase
 
         var user = new Users
         {
-            Guid = Guid.NewGuid().ToString(),
+            Guid = registerDTO.Guid,
             Username = registerDTO.Username
         };
 
