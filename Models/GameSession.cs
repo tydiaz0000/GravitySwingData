@@ -9,6 +9,6 @@ public class GameSession
 
     public DateTime StartedAt { get; set; } = DateTime.UtcNow;
     public bool Completed { get; set; } = false;
-    public int GameRecordId { get; set; } 
-    public GameRecord GameRecord { get; set; } = null!;
+    public int? GameRecordId { get; set; } 
+    public GameRecord? GameRecord { get; set; } = null!;
 }
