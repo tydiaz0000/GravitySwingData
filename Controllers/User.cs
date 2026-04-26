@@ -60,7 +60,10 @@ public class UserController : ControllerBase
         var expectedSignature = SignatureValidator.ComputeSignature(registerDTO.Guid, registerDTO.Username);
         if (!string.Equals(expectedSignature, registerDTO.Signature, StringComparison.OrdinalIgnoreCase))
             return BadRequest("Invalid signature");
-
+        if (registerDTO.Username.Length > 20)
+            return BadRequest("Username must be 20 characters or less");
+        if ( await _context.Users.AnyAsync(u => u.Username == registerDTO.Username))
+            return BadRequest("Username already taken");
         // Check if GUID already exists (device/user uniqueness)
         if (await _context.Users.AnyAsync(u => u.Guid == registerDTO.Guid))
             return Ok(registerDTO.Guid); // Idempotent response for existing user

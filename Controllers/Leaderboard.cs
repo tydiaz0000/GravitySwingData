@@ -17,38 +17,67 @@ public class LeaderboardController : ControllerBase
 
     // 🔹 Get top players for all stats
     [HttpGet("top")]
-    public async Task<IActionResult> GetTop(int limit = 10)
+    public async Task<IActionResult> GetTop(int limit = 10, string? guid = null)
     {
         var topScore = await _context.Users
+            .Where(u => u.BestScore > 0)
             .OrderByDescending(u => u.BestScore)
             .Take(limit)
             .Select(u => new { u.Username, u.BestScore })
             .ToListAsync();
 
         var topCombo = await _context.Users
+            .Where(u => u.BestCombo > 0)
             .OrderByDescending(u => u.BestCombo)
             .Take(limit)
             .Select(u => new { u.Username, u.BestCombo })
             .ToListAsync();
 
         var topDistance = await _context.Users
+            .Where(u => u.BestDistance > 0)
             .OrderByDescending(u => u.BestDistance)
             .Take(limit)
             .Select(u => new { u.Username, u.BestDistance })
             .ToListAsync();
 
         var topGames = await _context.Users
+            .Where(u => u.GamesPlayed > 0)
             .OrderByDescending(u => u.GamesPlayed)
             .Take(limit)
             .Select(u => new { u.Username, u.GamesPlayed })
             .ToListAsync();
+
+        // Get current user's stats and rank if guid provided
+        object? currentUser = null;
+        if (!string.IsNullOrEmpty(guid))
+        {
+            var user = await _context.Users.FirstOrDefaultAsync(u => u.Guid == guid);
+            if (user != null)
+            {
+                var scoreRank = await _context.Users.CountAsync(u => u.BestScore > user.BestScore) + 1;
+                var comboRank = await _context.Users.CountAsync(u => u.BestCombo > user.BestCombo) + 1;
+                var distanceRank = await _context.Users.CountAsync(u => u.BestDistance > user.BestDistance) + 1;
+                var gamesRank = await _context.Users.CountAsync(u => u.GamesPlayed > user.GamesPlayed) + 1;
+
+                currentUser = new
+                {
+                    user.Username,
+                    user.BestScore,
+                    user.BestCombo,
+                    user.BestDistance,
+                    user.GamesPlayed,
+                    ranks = new { scoreRank, comboRank, distanceRank, gamesRank }
+                };
+            }
+        }
 
         return Ok(new
         {
             score = topScore,
             combo = topCombo,
             distance = topDistance,
-            gamesPlayed = topGames
+            gamesPlayed = topGames,
+            currentUser
         });
     }
 
