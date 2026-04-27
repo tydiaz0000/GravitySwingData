@@ -38,7 +38,7 @@ public class UserController : ControllerBase
             .FirstOrDefaultAsync();
 
         if (user == null)
-            return NotFound();
+            return NotFound("User not found.");
 
         return Ok(user);
     }
