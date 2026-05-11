@@ -88,12 +88,10 @@ public class UserController : ControllerBase
         var user = await _context.Users
             .FirstOrDefaultAsync(u => u.Guid == request.Guid);
 
-        if (user == null)
-            return NotFound("User not found");
 
         var session = new AppSession
         {
-            UserId = user.Id,
+            UserId = user != null ? user.Id : 0,
             DeviceInfo = request.DeviceInfo,
             AppVersion = request.AppVersion,
             OpenedAt = DateTime.UtcNow
