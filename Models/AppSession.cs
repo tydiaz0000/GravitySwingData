@@ -4,8 +4,8 @@ public class AppSession
 {
     public int Id { get; set; }
 
-    public int UserId { get; set; }
-    public Users User { get; set; } = null!;
+    public int? UserId { get; set; }
+    public Users? User { get; set; }
 
     public DateTime OpenedAt { get; set; } = DateTime.UtcNow;
 
