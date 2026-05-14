@@ -6,7 +6,21 @@ var builder = WebApplication.CreateBuilder(args);
 // Add services to the container.
 
 builder.Services.AddControllers();
+builder.Services.AddCors(options =>
+{
+    options.AddPolicy("AllowDashboard", policy =>
+    {
+        policy
+            .SetIsOriginAllowed(origin =>
+            {
+                var uri = new Uri(origin);
 
+                return uri.Host.EndsWith(".janzarieldiaz.com");
+            })
+            .AllowAnyHeader()
+            .AllowAnyMethod();
+    });
+});
 var connectionString =
     builder.Configuration.GetConnectionString("Default");
 
@@ -30,7 +44,7 @@ using (var scope = app.Services.CreateScope())
     var db = scope.ServiceProvider.GetRequiredService<AppDbContext>();
     db.Database.Migrate();
 }
-
+app.UseCors("AllowDashboard");
 app.UseAuthorization();
 
 app.MapControllers();
