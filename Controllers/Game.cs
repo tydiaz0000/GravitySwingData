@@ -1,6 +1,7 @@
 ﻿using GravitySwingData.Data;
 using GravitySwingData.DTOs;
 using GravitySwingData.Extension;
+using GravitySwingData.Migrations;
 using GravitySwingData.Models;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
@@ -150,14 +151,29 @@ public class GameController : ControllerBase
             .Select(gr => new GameRecordsDTO
             {
                 Id = gr.Id,
+                UserGuid = gr.User.Guid,
                 Username = gr.User.Username,
                 Score = gr.Score,
                 LongestCombo = gr.LongestCombo,
                 DistanceReached = gr.DistanceReached,
-                PlayedAt = gr.PlayedAt
+                PlayedAt = gr.PlayedAt.AddHours(8)
             })
             .ToListAsync();
 
         return Ok(gameRecords);
+    }
+
+    [HttpGet("appsessions")]
+    public async Task<IActionResult> GetAppSessions()
+    {
+        var appSessions = await _context.AppSessions
+            .ToListAsync();
+
+        foreach (AppSession appSession in appSessions)
+        {
+            appSession.OpenedAt = appSession.OpenedAt.AddHours(8);
+        }
+
+        return Ok(appSessions);
     }
 }

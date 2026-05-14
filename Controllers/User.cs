@@ -1,8 +1,10 @@
-﻿using System.Reflection.Emit;
+﻿using System.ComponentModel;
+using System.Reflection.Emit;
 using GravitySwingData.Data;
 using GravitySwingData.DTOs;
 using GravitySwingData.Extension;
 using GravitySwingData.Models;
+using Microsoft.AspNetCore.Http.HttpResults;
 using Microsoft.AspNetCore.Mvc;
 using Microsoft.EntityFrameworkCore;
 
@@ -41,6 +43,25 @@ public class UserController : ControllerBase
             return NotFound("User not found.");
 
         return Ok(user);
+    }
+
+    [HttpGet("list")]
+    public async Task<IActionResult> GetUsers()
+    {
+        var users = await _context.Users
+            .Select(u => new
+            {
+                u.Guid,
+                u.Username,
+                u.BestScore,
+                u.BestCombo,
+                u.BestDistance,
+                u.GamesPlayed,
+                LastPlayed = u.LastPlayed.AddHours(8),
+            })
+            .ToListAsync();
+
+        return Ok(users);
     }
 
     // POST: api/user/register
