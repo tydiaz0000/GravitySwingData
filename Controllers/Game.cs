@@ -141,4 +141,23 @@ public class GameController : ControllerBase
             record.Score
         });
     }
+
+    [HttpGet("list")]
+    public async Task<IActionResult> GetGameRecords()
+    {
+        var gameRecords = await _context.GameRecords
+            .Include(gr => gr.User)
+            .Select(gr => new GameRecordsDTO
+            {
+                Id = gr.Id,
+                Username = gr.User.Username,
+                Score = gr.Score,
+                LongestCombo = gr.LongestCombo,
+                DistanceReached = gr.DistanceReached,
+                PlayedAt = gr.PlayedAt
+            })
+            .ToListAsync();
+
+        return Ok(gameRecords);
+    }
 }
