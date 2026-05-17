@@ -57,7 +57,7 @@ public class UserController : ControllerBase
                 u.BestCombo,
                 u.BestDistance,
                 u.GamesPlayed,
-                LastPlayed = u.LastPlayed.AddHours(8),
+                LastPlayed = u.LastPlayed
             })
             .ToListAsync();
 

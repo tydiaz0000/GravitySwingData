@@ -121,6 +121,7 @@ public class GameController : ControllerBase
         }
 
         user.GamesPlayed += 1;
+        user.LastPlayed = DateTime.UtcNow;
         
         _context.GameRecords.Add(record);
         await _context.SaveChangesAsync();
@@ -156,7 +157,7 @@ public class GameController : ControllerBase
                 Score = gr.Score,
                 LongestCombo = gr.LongestCombo,
                 DistanceReached = gr.DistanceReached,
-                PlayedAt = gr.PlayedAt.AddHours(8)
+                PlayedAt = gr.PlayedAt
             })
             .ToListAsync();
 
@@ -169,10 +170,10 @@ public class GameController : ControllerBase
         var appSessions = await _context.AppSessions
             .ToListAsync();
 
-        foreach (AppSession appSession in appSessions)
-        {
-            appSession.OpenedAt = appSession.OpenedAt.AddHours(8);
-        }
+        // foreach (AppSession appSession in appSessions)
+        // {
+        //     appSession.OpenedAt = appSession.OpenedAt.AddHours(8);
+        // }
 
         return Ok(appSessions);
     }
